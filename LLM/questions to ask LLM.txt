@@ -1,0 +1,49 @@
+How many engines are included in the dataset?
+
+What is the distribution of cycles (operational time) for these engines?
+
+What are the minimum, maximum, and average RUL (Remaining Useful Life) values in the dataset?
+
+Which features are most correlated with the target variable RUL?
+
+Can you identify any multicollinearity issues among the input features?
+
+Are there specific engines or operational conditions where the model performs significantly better or worse?
+
+Which features have the highest importance in predicting RUL according to the LLM model?
+
+Are there any surprising or counterintuitive relationships between the input features and RUL that the model highlights?
+
+What is the distribution of engine types in the dataset?
+        
+How many cycles of data do we have for each engine?
+
+What is the range of cycles (operating time) covered in the dataset?
+
+What are the average values of important parameters like altitude, Mach number, and throttle angle across all engines?
+
+How do changes in altitude and Mach number affect engine performance parameters like temperatures and pressures?
+
+What is a turbofan engine?
+
+Show me the average temperature recorded.
+
+List all sensor readings from engine ID 3.
+
+What is the maximum pressure observed across all engines?
+
+Show me the temperature readings where engine ID is greater than 5.
+
+List all engines where the fan speed is less than 2000.
+
+Retrieve all sensor readings when the cycles are between 100 and 200.
+
+Retrieve the highest and lowest temperature readings recorded for each engine.
+
+what is the standard deviation of cycles?
+
+what is the correlation between lpc outlet temp and hpc outlet temp ?
+
+are there any outliers in the data?
+
+are there any null values in the data?
