@@ -51,8 +51,9 @@ def create_sql_chain(conn, target_table, question, api_key):
         - Ensure the query groups by relevant columns if necessary and avoids SQL syntax errors.
         - For range calculation, use MAX and MIN functions.
         - For standard deviation calculation, use the STDDEV function.
-        - For describing a column, provide the 5-number summary (minimum, first quartile, median, third quartile, maximum).
+        - For describing a column or asked for trend of a column, provide the 5-number summary (minimum, first quartile, median, third quartile, maximum).
         - When asked to compare values for train and test data, use 'source' column where train data is 0 and test data is 1.
+        - When asked if the data has any null values, calculate the count of null values
 
         For example - 
         Example1 -> how many engines are included in the data?
@@ -105,8 +106,7 @@ def execute_sql_query(conn, sql_query):
         results = cursor.fetchall()
         cursor.close()
         return results
-    except psycopg2.Error as e:
-        st.error(f"Error executing SQL query: {e}")
+    except psycopg2.Error:
         return None
 
 # Function to create natural language response based on SQL query results and the original question
@@ -134,7 +134,41 @@ def create_nlp_answer(question, sql_query, results, api_key):
     )
 
 def main():
-    st.title("Database Query and NLP Response")
+    st.title("Turbofan Engine Degradation Simulation")
+
+    # Dataset description
+    dataset_description = """
+    The dataset, Turbofan Engine Degradation Simulation, has the following columns:
+
+    - **engine_number**: A unique identifier for each data entry.
+    - **cycles**: The number of flight cycles completed by the engine.
+    - **altitude**: The height above sea level in feet (ft).
+    - **mach_number**: The ratio of the speed of the aircraft to the speed of sound, dimensionless (-).
+    - **throttle_resolver_angle**: The position of the throttle lever, represented as a percentage (%).
+    - **source**: The source or origin of the data.
+    - **fan_inlet_temp**: The temperature of the air at the fan inlet, measured in Rankine (°R).
+    - **lpc_outlet_temp**: The temperature of the air at the outlet of the Low-Pressure Compressor, measured in Rankine (°R).
+    - **hpc_outlet_temp**: The temperature of the air at the outlet of the High-Pressure Compressor, measured in Rankine (°R).
+    - **lpt_outlet_temp**: The temperature of the air at the outlet of the Low-Pressure Turbine, measured in Rankine (°R).
+    - **fan_inlet_pressure**: The pressure of the air at the fan inlet, measured in pounds per square inch absolute (psia).
+    - **bypass_duct_pressure**: The pressure of the air in the bypass duct, measured in pounds per square inch absolute (psia).
+    - **fan_speed**: The rotational speed of the fan, measured in revolutions per minute (rpm).
+    - **core_speed**: The rotational speed of the core, measured in revolutions per minute (rpm).
+    - **hpc_outlet_static_pressure**: The static pressure at the outlet of the High-Pressure Compressor, measured in pounds per square inch absolute (psia).
+    - **hpc_outlet_pressure**: The pressure of the air at the outlet of the High-Pressure Compressor, measured in pounds per square inch absolute (psia).
+    - **engine_pressure_ratio**: The ratio of the pressure at the outlet of the engine to the pressure at the inlet, dimensionless (-).
+    - **fuel_ps30_ratio**: The ratio of the fuel flow rate to the static pressure at the HPC outlet, measured in pounds per second per pound per square inch (pps/psi).
+    - **fan_speed_ratio**: The ratio of the fan speed to a reference speed, dimensionless (-).
+    - **core_speed_ratio**: The ratio of the core speed to a reference speed, dimensionless (-).
+    - **bypass_ratio**: The ratio of the mass flow rate of air bypassing the engine to the mass flow rate of air passing through the engine core, dimensionless (-).
+    - **burner_fuel_air_ratio**: The ratio of the fuel flow to the air flow in the bypass duct, dimensionless (-).
+    - **hpt_coolant_bleed**: The amount of air bled from the high-pressure turbine for cooling purposes, measured in pounds per second (lbm/s).
+    - **demanded_fan_speed**: The desired or demanded speed of the fan, measured in revolutions per minute (rpm).
+    - **corrected_fan_speed**: The desired or demanded corrected fan speed, dimensionless (-).
+    - **hpt_coolant_bleed_flow_1**: The amount of air bled from the high-pressure turbine for cooling purposes, measured in pounds per second (lbm/s).
+    - **hpt_coolant_bleed_flow_2**: Another measure of the amount of air bled from the high-pressure turbine for cooling purposes, measured in pounds per second (lbm/s).
+    """
+    st.sidebar.markdown(dataset_description)
 
     db_config, api_config = read_config('config.ini')
 
@@ -144,18 +178,7 @@ def main():
         conn = connect_to_db(db_config)
         st.success("Connected to the database successfully!")
 
-        user_query = st.text_input("Ask your database a question about " + target_table + ": ")
-
-        if st.button("Get SQL Query"):
-            try:
-                # Generate SQL query
-                sql_chain = create_sql_chain(conn, target_table, user_query, api_config['groq_api_key'])
-                sql_query_response = sql_chain.invoke({})
-                sql_query = sql_query_response.strip()
-
-                st.write(f"SQL Query:\n{sql_query}")
-            except Exception as err:
-                st.error(f"Error generating SQL query: {err}")
+        user_query = st.text_input("Ask a question about the Database " + target_table + ": ")
 
         if st.button("Get Answer"):
             try:
@@ -172,11 +195,11 @@ def main():
                     nlp_response = nlp_chain.invoke({})
                     st.write(f"Answer:\n{nlp_response}")
                 else:
-                    st.warning("Oops! No results found.")
-            except Exception as err:
-                st.error(f"Error querying the database or generating NLP response: {err}")
-    except Exception as err:
-        st.error(f"Error connecting to the database: {err}")
+                    st.warning("No response generated.")
+            except Exception:
+                st.warning("No response generated.")
+    except Exception:
+        st.warning("No response generated.")
     finally:
         if 'conn' in locals() and conn is not None:
             conn.close()

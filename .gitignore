@@ -1,3 +1,5 @@
 aws_credentials.py
 db_config.ini
 config.ini
+llm_ec2_key_pair.pem
+turbo_key.pem
