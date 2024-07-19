@@ -40,8 +40,7 @@ s3_client = boto3.client(
 # Define buffer and other parameters
 buffer = []
 buffer_lock = threading.Lock()
-flush_interval = 200 
-buffer_size = 15000
+flush_interval = 60
  
 # Function to write buffer to AWS S3 in Parquet format
 def flush_buffer_to_s3():
@@ -84,7 +83,7 @@ def main():
     os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 pyspark-shell'
 
     # Initialize Spark session
-    spark = SparkSession.builder.appName("ProjectTurbo").getOrCreate()
+    spark = SparkSession.builder.appName("ProjectTurbo11").getOrCreate()
 
     # Set log level to minimize verbosity
     spark.sparkContext.setLogLevel("WARN")

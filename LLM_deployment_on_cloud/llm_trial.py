@@ -1,10 +1,10 @@
 import streamlit as st
 import configparser
+import psycopg2
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-import psycopg2
 
 # Function to read configuration from config.ini file
 def read_config(filename='config.ini'):
@@ -140,33 +140,32 @@ def main():
     dataset_description = """
     The dataset, Turbofan Engine Degradation Simulation, has the following columns:
 
-    - **engine_number**: A unique identifier for each data entry.
+    - **engine**: The specific engine number.
     - **cycles**: The number of flight cycles completed by the engine.
     - **altitude**: The height above sea level in feet (ft).
     - **mach_number**: The ratio of the speed of the aircraft to the speed of sound, dimensionless (-).
     - **throttle_resolver_angle**: The position of the throttle lever, represented as a percentage (%).
-    - **source**: The source or origin of the data.
-    - **fan_inlet_temp**: The temperature of the air at the fan inlet, measured in Rankine (°R).
-    - **lpc_outlet_temp**: The temperature of the air at the outlet of the Low-Pressure Compressor, measured in Rankine (°R).
-    - **hpc_outlet_temp**: The temperature of the air at the outlet of the High-Pressure Compressor, measured in Rankine (°R).
-    - **lpt_outlet_temp**: The temperature of the air at the outlet of the Low-Pressure Turbine, measured in Rankine (°R).
-    - **fan_inlet_pressure**: The pressure of the air at the fan inlet, measured in pounds per square inch absolute (psia).
-    - **bypass_duct_pressure**: The pressure of the air in the bypass duct, measured in pounds per square inch absolute (psia).
-    - **fan_speed**: The rotational speed of the fan, measured in revolutions per minute (rpm).
-    - **core_speed**: The rotational speed of the core, measured in revolutions per minute (rpm).
-    - **hpc_outlet_static_pressure**: The static pressure at the outlet of the High-Pressure Compressor, measured in pounds per square inch absolute (psia).
-    - **hpc_outlet_pressure**: The pressure of the air at the outlet of the High-Pressure Compressor, measured in pounds per square inch absolute (psia).
-    - **engine_pressure_ratio**: The ratio of the pressure at the outlet of the engine to the pressure at the inlet, dimensionless (-).
-    - **fuel_ps30_ratio**: The ratio of the fuel flow rate to the static pressure at the HPC outlet, measured in pounds per second per pound per square inch (pps/psi).
-    - **fan_speed_ratio**: The ratio of the fan speed to a reference speed, dimensionless (-).
-    - **core_speed_ratio**: The ratio of the core speed to a reference speed, dimensionless (-).
-    - **bypass_ratio**: The ratio of the mass flow rate of air bypassing the engine to the mass flow rate of air passing through the engine core, dimensionless (-).
-    - **burner_fuel_air_ratio**: The ratio of the fuel flow to the air flow in the bypass duct, dimensionless (-).
-    - **hpt_coolant_bleed**: The amount of air bled from the high-pressure turbine for cooling purposes, measured in pounds per second (lbm/s).
-    - **demanded_fan_speed**: The desired or demanded speed of the fan, measured in revolutions per minute (rpm).
-    - **corrected_fan_speed**: The desired or demanded corrected fan speed, dimensionless (-).
-    - **hpt_coolant_bleed_flow_1**: The amount of air bled from the high-pressure turbine for cooling purposes, measured in pounds per second (lbm/s).
-    - **hpt_coolant_bleed_flow_2**: Another measure of the amount of air bled from the high-pressure turbine for cooling purposes, measured in pounds per second (lbm/s).
+    - **fan_inlet_temp**: Total temperature at fan inlet. Measures the temperature of the air entering the fan section of the engine. Units: °R (degrees Rankine).
+    - **lpc_outlet_temp**: Total temperature at LPC outlet. Measures the temperature of the air at the outlet of the Low-Pressure Compressor (LPC). Units: °R.
+    - **hpc_outlet_temp**: Total temperature at HPC outlet. Measures the temperature of the air at the outlet of the High-Pressure Compressor (HPC). Units: °R.
+    - **lpt_outlet_temp**: Total temperature at LPT outlet. Measures the temperature of the air at the outlet of the Low-Pressure Turbine (LPT). Units: °R.
+    - **fan_inlet_pressure**: Pressure at fan inlet. Measures the static pressure of the air entering the fan section of the engine. Units: psia (pounds per square inch absolute).
+    - **bypass_duct_pressure**: Total pressure in bypass-duct. Measures the total pressure in the bypass-duct of the engine. Units: psia.
+    - **hpc_outlet_pressure**: Total pressure at HPC outlet. Measures the total pressure at the outlet of the High-Pressure Compressor (HPC). Units: psia.
+    - **fan_speed**: Physical fan speed. Measures the rotational speed of the fan section of the engine. Units: rpm (revolutions per minute).
+    - **core_speed**: Physical core speed. Measures the rotational speed of the core (combustor and turbine sections) of the engine. Units: rpm.
+    - **engine_pressure_ratio**: Engine pressure ratio (P50/P2). Represents the ratio of the total pressure at the HPC outlet (P30) to the pressure at the fan inlet (P2). Units: -- (dimensionless).
+    - **hpc_outlet_static_pressure**: Static pressure at HPC outlet. Measures the static pressure at the outlet of the High-Pressure Compressor (HPC). Units: psia.
+    - **fuel_ps30_ratio**: Ratio of fuel flow to Ps30. Represents the ratio of fuel flow to the static pressure at the HPC outlet (Ps30). Units: pps/psi (pounds per second per pound per square inch).
+    - **fan_speed_ratio**: Corrected fan speed. Measures the fan speed corrected for ambient conditions. Units: rpm.
+    - **core_speed_ratio**: Corrected core speed. Measures the core speed corrected for ambient conditions. Units: rpm.
+    - **bypass_ratio**: Bypass Ratio. Indicates the ratio of the mass flow rate of air through the bypass duct to the mass flow rate through the engine core. Units: -- (dimensionless).
+    - **burner_fuel_air_ratio**: Burner fuel-air ratio. Represents the ratio of fuel flow to the airflow entering the burner. Units: -- (dimensionless).
+    - **bleed_enthalpy**: Bleed Enthalpy. Measures the enthalpy (heat content) of the air bled from the engine for various purposes such as cooling. Units: -- (dimensionless).
+    - **demanded_fan_speed**: Demanded fan speed. Represents the demanded or desired rotational speed of the fan section of the engine. Units: rpm.
+    - **demanded_corrected_fan_speed**: Demanded corrected fan speed. Represents the demanded or desired corrected rotational speed of the fan section of the engine. Units: rpm.
+    - **hpt_coolant_bleed**: HPT coolant bleed. Measures the mass flow rate of coolant bleed from the High-Pressure Turbine (HPT). Units: lbm/s (pounds per second).
+    - **lpt_coolant_bleed**: LPT coolant bleed. Measures the mass flow rate of coolant bleed from the Low-Pressure Turbine (LPT). Units: lbm/s.
     """
     st.sidebar.markdown(dataset_description)
 
@@ -206,3 +205,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
