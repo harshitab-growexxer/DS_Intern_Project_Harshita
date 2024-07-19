@@ -1,0 +1,35 @@
+1. Strong Positive Correlations:
+   - `hpc_outlet_temp` and `lpc_outlet_temp`: 0.982
+   - `hpc_outlet_temp` and `core_speed`: 0.998
+   - `fan_inlet_temp` and `altitude`: -0.964
+   - `fan_inlet_temp` and `mach_no`: -0.884
+   - `hpt_coolant_bleed` and `fan_inlet_temp`: 0.977
+   - `bleed_enthalpy` and `lpc_outlet_temp`: 0.983
+   - `burner_fuel_air_ratio` and `altitude`: -0.839
+
+2. Strong Negative Correlations:
+   - `fan_inlet_temp` and `altitude`: -0.964
+   - `fan_inlet_temp` and `mach_no`: -0.884
+   - `bypass_ratio` and `fan_speed`: -0.971
+   - `corrected_fan_speed` and `fan_speed`: 0.902
+   - `burner_fuel_air_ratio` and `bypass_ratio`: -0.664
+
+Significant Correlations:
+- `hpc_outlet_temp` and `lpc_outlet_temp` (0.982): High positive correlation indicating these two temperatures are closely related.
+- `core_speed` and `hpc_outlet_temp` (0.998): Almost perfect positive correlation showing a strong relationship between core speed and high-pressure compressor outlet temperature.
+- `altitude` and `fan_inlet_temp` (-0.964): High negative correlation suggesting that as altitude increases, the fan inlet temperature decreases.
+- `mach_no` and `fan_inlet_temp` (-0.884): High negative correlation indicating that higher mach numbers are associated with lower fan inlet temperatures.
+- `hpt_coolant_bleed` and `fan_inlet_temp` (0.977): Very high positive correlation, showing that as fan inlet temperature increases, so does high-pressure turbine coolant bleed.
+- `bleed_enthalpy` and `lpc_outlet_temp` (0.983): Strong positive correlation indicating a strong relationship between bleed enthalpy and low-pressure compressor outlet temperature.
+- `burner_fuel_air_ratio` and `altitude` (-0.839): High negative correlation showing a strong relationship between burner fuel/air ratio and altitude.
+
+Key Correlation with Remaining Useful Life (RUL):
+- `cycles_completed` and `RUL` (-0.733): High negative correlation indicating that as cycles completed increase, the remaining useful life decreases significantly.
+
+
+
+A low pressure compressor (LPC) and high pressure compressor (HPC) supply compressed high temperature, high pressure gases to the combustor. 
+Low pressure turbine (LPT) can decelerate and pressurize air to improve the chemical energy conversion efficiency of aviation kerosene. 
+High pressure turbines (HPT) generate mechanical energy by using high temperature and high pressure gas strike turbine blades. 
+Low-pressure rotor (N1), high-pressure rotor (N2), and nozzle guarantee the combustion efficiency of the engine.
+
